@@ -32,3 +32,30 @@ Welcome to the **Fortune Teller**, an AI-powered web application that provides h
    ```bash
    git clone https://github.com/your-username/fortune-teller.git
    cd fortune-teller
+
+Install Dependencies:
+
+bash
+Copy
+npm install express cors axios
+Set Up the Backend:
+
+Open server.js and replace the placeholder OpenAI API key with your actual key:
+
+javascript
+Copy
+const OPENAI_API_KEY = 'your_openai_api_key_here';
+Start the Backend Server:
+
+bash
+Copy
+node server.js
+You should see:
+
+Copy
+Server is running on http://localhost:5000
+Open the Frontend:
+
+Open the index.html file in your browser.
+
+Enter a question and click Reveal Your Dark Fortune.
