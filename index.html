@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 Savage AI Fortune Teller 🔮</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #000;
+            color: #fff;
+            font-family: 'Creepster', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .crystal-ball-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+        }
+
+        .crystal-ball {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #808080);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .glow-1 {
+            animation: pulse 2s infinite;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, transparent 70%);
+        }
+
+        .glow-2 {
+            animation: pulse 3s infinite 1s;
+            background: radial-gradient(circle at center, rgba(135,206,235,0.5) 0%, transparent 70%);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.2; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+
+        .base {
+            width: 100px;
+            height: 40px;
+            background: #333;
+            margin: -20px auto 0;
+            border-radius: 0 0 50% 50%;
+        }
+
+        .input-container {
+            margin: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #fff;
+            background: transparent;
+            color: #fff;
+            font-size: 18px;
+            font-family: 'Creepster', cursive;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 20px;
+            background: transparent;
+            border: 2px solid #fff;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Creepster', cursive;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .fortune {
+            margin: 20px;
+            padding: 20px;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            min-height: 100px;
+            display: none;
+            font-size: 24px;
+            max-width: 600px;
+            animation: fadeIn 1s;
+        }
+
+        .loading {
+            display: none;
+            font-size: 24px;
+            margin: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .error {
+            color: #ff4444;
+            margin: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔮 The Savage AI Fortune Teller 🔮</h1>
+
+    <div class="crystal-ball-container">
+        <div class="crystal-ball">
+            <div class="glow glow-1"></div>
+            <div class="glow glow-2"></div>
+        </div>
+    </div>
+    <div class="base"></div>
+
+    <div class="input-container">
+        <input type="text" id="question" placeholder="Ask your question..." aria-label="Enter your question">
+        <button onclick="getFortune()">Reveal Your Dark Fortune</button>
+    </div>
+
+    <div class="loading" id="loading">
+        <i class="fas fa-spinner fa-spin"></i> Channeling dark energies...
+    </div>
+
+    <div class="error" id="error"></div>
+    <div class="fortune" id="fortune"></div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:5000/generate'; // Backend server URL
+
+        async function generateResponse(question) {
+            const response = await fetch(BACKEND_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to connect to the spirits');
+            }
+
+            const data = await response.json();
+            return data.response;
+        }
+
+        async function getFortune() {
+            const questionInput = document.getElementById('question');
+            const fortuneDiv = document.getElementById('fortune');
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const crystalBall = document.querySelector('.crystal-ball');
+
+            if (!questionInput.value.trim()) {
+                errorDiv.textContent = "Ask a question first, mortal!";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            errorDiv.style.display = 'none';
+            crystalBall.style.animation = 'pulse 2s infinite';
+            loadingDiv.style.display = 'block';
+            fortuneDiv.style.display = 'none';
+
+            try {
+                const fortune = await generateResponse(questionInput.value);
+
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Dramatic pause
+
+                loadingDiv.style.display = 'none';
+                fortuneDiv.style.display = 'block';
+                fortuneDiv.textContent = fortune;
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                errorDiv.textContent = "The spirits are unavailable. They're probably on a coffee break.";
+                errorDiv.style.display = 'block';
+                console.error('Error:', error);
+            }
+
+            setTimeout(() => {
+                crystalBall.style.animation = '';
+            }, 5000);
+        }
+
+        // Allow Enter key to trigger fortune
+        document.getElementById('question').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                getFortune();
+            }
+        });
+    </script>
+</body>
+</html>
